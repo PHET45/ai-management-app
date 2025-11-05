@@ -1,4 +1,3 @@
-
 // prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
@@ -17,7 +16,8 @@ model User {
   image         String?
   organizations OrganizationMember[]
   aiSessions    AiSession[]
-  tasks         Task[]
+  assignedTasks Task[]    @relation("TaskAssignee")
+  createdTasks  Task[]    @relation("TaskCreatedBy")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -32,6 +32,8 @@ model Organization {
   projects  Project[]
   products  Product[]
   sales     Sale[]
+  tasks     Task[]
+  aiSessions AiSession[]  // ← เพิ่ม relation นี้
   createdAt DateTime @default(now())
 
   @@map("organizations")
@@ -81,13 +83,13 @@ model Task {
   priority    Priority   @default(MEDIUM)
   dueDate     DateTime?
   completedAt DateTime?
-  assignee    User?      @relation(fields: [assigneeId], references: [id])
+  assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id])
   assigneeId  String?
   project     Project?   @relation(fields: [projectId], references: [id])
   projectId   String?
   org         Organization @relation(fields: [orgId], references: [id])
   orgId       String
-  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdBy   User       @relation("TaskCreatedBy", fields: [createdById], references: [id])
   createdById String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
