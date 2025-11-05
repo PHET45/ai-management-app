@@ -2,8 +2,9 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import TaskList from '@/components/tasks/TaskList'
-import CreateTaskForm from '@/components/tasks/CreateTaskForm'
+import TaskList from './TaskList'
+import CreateTaskForm from './CreateTaskForm'
+import type { Task, Project } from '@/types'
 
 export default async function TasksPage() {
   const session = await auth()
@@ -39,13 +40,13 @@ export default async function TasksPage() {
       { priority: 'desc' },
       { dueDate: 'asc' }
     ]
-  })
+  }) as Task[]
 
   const projects = await prisma.project.findMany({
     where: {
       orgId: organization.id
     }
-  })
+  }) as Project[]
 
   return (
     <div className="min-h-screen bg-gray-50">

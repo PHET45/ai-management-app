@@ -8,8 +8,17 @@ interface QuickActionsProps {
   orgType: 'PERSONAL' | 'BUSINESS'
 }
 
+// กำหนด interface สำหรับ action items
+interface ActionItem {
+  title: string
+  description: string
+  icon: string
+  onClick: () => void
+  loading?: boolean
+}
+
 export default function QuickActions({ orgType }: QuickActionsProps) {
-  const { run, loading } = useAi()
+  const { run, loading: aiLoading } = useAi()
   const [generating, setGenerating] = useState(false)
 
   const handleGeneratePlan = async () => {
@@ -25,12 +34,15 @@ export default function QuickActions({ orgType }: QuickActionsProps) {
         }
       })
       // Process the result...
+      console.log('AI Result:', result)
+    } catch (error) {
+      console.error('AI Error:', error)
     } finally {
       setGenerating(false)
     }
   }
 
-  const personalActions = [
+  const personalActions: ActionItem[] = [
     {
       title: 'สร้างแผนสัปดาห์',
       description: 'AI จัดตารางงานอัตโนมัติ',
@@ -42,22 +54,28 @@ export default function QuickActions({ orgType }: QuickActionsProps) {
       title: 'วิเคราะห์นิสัย',
       description: 'ติดตามและปรับปรุงนิสัย',
       icon: '💪',
-      onClick: () => {}
+      onClick: () => {
+        console.log('Analyze habits clicked')
+      }
     }
   ]
 
-  const businessActions = [
+  const businessActions: ActionItem[] = [
     {
       title: 'พยากรณ์ยอดขาย',
       description: 'คาดการณ์ความต้องการ 30 วัน',
       icon: '📈',
-      onClick: () => {}
+      onClick: () => {
+        console.log('Sales forecast clicked')
+      }
     },
     {
       title: 'ตรวจสอบสต็อก',
       description: 'แนะนำการสั่งซื้อใหม่',
       icon: '📦',
-      onClick: () => {}
+      onClick: () => {
+        console.log('Stock check clicked')
+      }
     }
   ]
 
@@ -73,13 +91,16 @@ export default function QuickActions({ orgType }: QuickActionsProps) {
           <button
             key={index}
             onClick={action.onClick}
-            disabled={action.loading || loading}
+            disabled={action.loading || aiLoading}
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors disabled:opacity-50"
           >
             <span className="text-2xl mr-3">{action.icon}</span>
             <div className="text-left">
               <div className="font-medium text-gray-900">{action.title}</div>
               <div className="text-sm text-gray-500">{action.description}</div>
+              {(action.loading || aiLoading) && (
+                <div className="text-xs text-blue-600 mt-1">กำลังประมวลผล...</div>
+              )}
             </div>
           </button>
         ))}
