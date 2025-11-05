@@ -15,22 +15,22 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
 
     if (!orgId) {
-      return NextResponse.json({ error: 'Organization ID required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Organization ID required' },
+        { status: 400 }
+      )
     }
 
     const tasks = await prisma.task.findMany({
       where: {
         orgId,
-        ...(status && { status: status as any })
+        ...(status && { status: status as any }),
       },
       include: {
         assignee: true,
-        project: true
+        project: true,
       },
-      orderBy: [
-        { priority: 'desc' },
-        { dueDate: 'asc' }
-      ]
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
     })
 
     return NextResponse.json(tasks)
@@ -61,12 +61,12 @@ export async function POST(request: NextRequest) {
         dueDate: dueDate ? new Date(dueDate) : null,
         projectId: projectId || null,
         orgId,
-        createdById: session.user.id!
+        createdById: session.user.id!,
       },
       include: {
         assignee: true,
-        project: true
-      }
+        project: true,
+      },
     })
 
     return NextResponse.json(task)

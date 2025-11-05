@@ -1,10 +1,9 @@
-// app/tasks/page.tsx
+// src/app/tasks/page.tsx
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import TaskList from './TaskList'
-import CreateTaskForm from './CreateTaskForm'
-import type { Task, Project } from '@/types'
+import TaskList from '@/components/tasks/TaskList'
+import CreateTaskForm from '@/components/tasks/CreateTaskForm'
 
 export default async function TasksPage() {
   const session = await auth()
@@ -13,7 +12,6 @@ export default async function TasksPage() {
     redirect('/login')
   }
 
-  // Get user's first organization for demo
   const organization = await prisma.organization.findFirst({
     where: {
       users: {
@@ -40,13 +38,13 @@ export default async function TasksPage() {
       { priority: 'desc' },
       { dueDate: 'asc' }
     ]
-  }) as Task[]
+  })
 
   const projects = await prisma.project.findMany({
     where: {
       orgId: organization.id
     }
-  }) as Project[]
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -57,7 +55,6 @@ export default async function TasksPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Create Task Form */}
           <div className="lg:col-span-1">
             <CreateTaskForm 
               orgId={organization.id} 
@@ -65,7 +62,6 @@ export default async function TasksPage() {
             />
           </div>
 
-          {/* Task List */}
           <div className="lg:col-span-3">
             <TaskList 
               tasks={tasks} 

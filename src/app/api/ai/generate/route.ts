@@ -12,14 +12,14 @@ export async function POST(req: NextRequest) {
     const { prompt } = await req.json()
 
     // Simple AI response for MVP
-    const reply = "This is a mock AI response. Connect OpenAI API to enable real AI features."
+    const reply =
+      'This is a mock AI response. Connect OpenAI API to enable real AI features.'
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       reply,
-      type: 'GENERAL'
+      type: 'GENERAL',
     })
-
   } catch (error) {
     console.error('AI Generation Error:', error)
     return NextResponse.json(
