@@ -1,15 +1,165 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  image         String?
+  organizations OrganizationMember[]
+  aiSessions    AiSession[]
+  assignedTasks Task[]    @relation("TaskAssignee")
+  createdTasks  Task[]    @relation("TaskCreatedBy")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  type      OrganizationType @default(PERSONAL)
+  users     OrganizationMember[]
+  projects  Project[]
+  products  Product[]
+  sales     Sale[]
+  tasks     Task[]
+  aiSessions AiSession[]  // ← เพิ่ม relation นี้
+  createdAt DateTime @default(now())
+
+  @@map("organizations")
+}
+
+enum OrganizationType {
+  PERSONAL
+  BUSINESS
+}
+
+model OrganizationMember {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  organization Organization @relation(fields: [orgId], references: [id])
+  orgId        String
+  role         MemberRole @default(MEMBER)
+  joinedAt     DateTime @default(now())
+
+  @@unique([userId, orgId])
+  @@map("organization_members")
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  org       Organization @relation(fields: [orgId], references: [id])
+  orgId     String
+  tasks     Task[]
+  color     String?  @default("#3B82F6")
+  createdAt DateTime @default(now())
+
+  @@map("projects")
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  project     Project?   @relation(fields: [projectId], references: [id])
+  projectId   String?
+  org         Organization @relation(fields: [orgId], references: [id])
+  orgId       String
+  createdBy   User       @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  name      String
+  sku       String?
+  price     Float
+  cost      Float?
+  stock     Int      @default(0)
+  minStock  Int      @default(10)
+  org       Organization @relation(fields: [orgId], references: [id])
+  orgId     String
+  sales     Sale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Sale {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  amount    Float
+  org       Organization @relation(fields: [orgId], references: [id])
+  orgId     String
+  soldAt    DateTime @default(now())
+  
+  @@map("sales")
+}
+
+model AiSession {
+  id        String   @id @default(uuid())
+  prompt    String
+  response  String
+  type      AiSessionType
+  metadata  Json?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  org       Organization? @relation(fields: [orgId], references: [id])
+  orgId     String?
+  createdAt DateTime @default(now())
+
+  @@map("ai_sessions")
+}
+
+enum AiSessionType {
+  TASK_PLANNING
+  SALES_FORECAST
+  FEEDBACK_ANALYSIS
+  STOCK_RECOMMENDATION
+  GENERAL
 }
