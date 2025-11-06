@@ -48,6 +48,11 @@ export default function TaskList({ tasks, orgId }: TaskListProps) {
     }
   }
 
+  const formatDate = (date: Date | null) => {
+    if (!date) return null
+    return new Date(date).toLocaleDateString('th-TH')
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <div className="p-6 border-b">
@@ -66,15 +71,17 @@ export default function TaskList({ tasks, orgId }: TaskListProps) {
             <div key={task.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={task.status === 'DONE'}
-                    readOnly
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 mt-1"
-                  />
+                  <div className={`w-3 h-3 rounded-full mt-2 ${
+                    task.status === 'DONE' ? 'bg-green-500' :
+                    task.status === 'IN_PROGRESS' ? 'bg-blue-500' :
+                    task.status === 'CANCELLED' ? 'bg-gray-400' : 'bg-gray-300'
+                  }`} />
+                  
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <h3 className={`font-medium ${task.status === 'DONE' ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                      <h3 className={`font-medium ${
+                        task.status === 'DONE' ? 'text-gray-500 line-through' : 'text-gray-900'
+                      }`}>
                         {task.title}
                       </h3>
                       <span className={`px-2 py-1 text-xs rounded-full border ${getStatusColor(task.status)}`}>
@@ -101,13 +108,19 @@ export default function TaskList({ tasks, orgId }: TaskListProps) {
                       
                       {task.dueDate && (
                         <span className="text-xs text-gray-500">
-                          กำหนดส่ง: {new Date(task.dueDate).toLocaleDateString('th-TH')}
+                          กำหนดส่ง: {formatDate(task.dueDate)}
                         </span>
                       )}
 
                       {task.assignee && (
                         <span className="text-xs text-gray-500">
                           ผู้รับผิดชอบ: {task.assignee.name || task.assignee.email}
+                        </span>
+                      )}
+
+                      {task.completedAt && (
+                        <span className="text-xs text-green-600">
+                          เสร็จเมื่อ: {formatDate(task.completedAt)}
                         </span>
                       )}
                     </div>
