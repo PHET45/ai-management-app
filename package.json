@@ -2,9 +2,9 @@
   "name": "ai-management-app",
   "version": "0.1.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
-    "@tailwindcss/postcss": "^4.1.16",
     "clsx": "^2.0.0",
     "next": "14.0.0",
     "next-auth": "^4.24.5",
@@ -24,12 +23,12 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "autoprefixer": "file:latest",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "14.0.0",
-    "postcss": "^8.5.6",
+    "postcss": "^8.4.0",
     "prisma": "^5.0.0",
-    "tailwindcss": "^4.1.16",
+    "tailwindcss": "^3.4.0",
     "typescript": "^5"
   }
 }
